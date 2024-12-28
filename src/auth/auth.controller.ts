@@ -1,6 +1,8 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UnauthorizedException } from "@nestjs/common";
 import { AuthService } from './auth.service';
 import { UsuarioService } from '../usuario/usuario.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -11,12 +13,11 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(
-    @Body() body: { nombre: string; email: string; password: string }
-  ) {
-    const usuario = await this.usuarioService.createUser(body);
+  async register(@Body() registerDto: RegisterDto) {
+    const usuario = await this.usuarioService.createUser(registerDto);
     const tokenData = await this.authService.generateToken(usuario);
     return {
+      message: 'Inicio de sesión exitoso',
       user: {
         nombre: usuario.nombre,
         email: usuario.email,
@@ -27,17 +28,18 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() body: { email: string; password: string }) {
+  async login(@Body() loginDto: LoginDto) {
     const usuario = await this.authService.validateUser(
-      body.email,
-      body.password
+      loginDto.email,
+      loginDto.password
     );
     if (!usuario) {
-      return { message: 'Invalid email or password' };
+      throw new UnauthorizedException('Correo o contraseña inválidos');
     }
 
     const tokenData = await this.authService.generateToken(usuario);
     return {
+      message: 'Usuario registrado con éxito',
       user: {
         nombre: usuario.nombre,
         email: usuario.email,

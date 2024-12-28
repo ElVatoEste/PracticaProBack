@@ -1,8 +1,10 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import express from 'express';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { config } from 'dotenv';
+
 config();
 
 let app: express.Express;
@@ -14,9 +16,17 @@ async function createServer() {
       AppModule,
       new ExpressAdapter(expressApp),
       {
-        logger: ['error', 'warn'], // Reduce el logging
+        logger: ['error', 'warn', 'log'],
         cors: true,
       }
+    );
+
+    nestApp.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      })
     );
 
     await nestApp.init();

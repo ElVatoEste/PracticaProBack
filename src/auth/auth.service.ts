@@ -13,7 +13,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     const usuario = await this.usuarioService.findByEmail(email);
     if (usuario && (await bcrypt.compare(password, usuario.password))) {
-      const { password, ...result } = usuario;
+      const { ...result } = usuario;
       return result;
     }
     return null;
@@ -27,7 +27,7 @@ export class AuthService {
       username: usuario.nombre,
       email: usuario.email,
     };
-    const expiresIn = 3600; // Tiempo de expiración en segundos
+    const expiresIn = 3600;
     const accessToken = this.jwtService.sign(payload, { expiresIn });
     return { accessToken, expiresIn };
   }
