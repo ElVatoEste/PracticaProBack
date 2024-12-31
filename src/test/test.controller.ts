@@ -12,10 +12,9 @@ export class TestController {
 
     @Get('send-email')
     async sendTestEmail(): Promise<{ message: string }> {
-        const testEmail = 'cnro3105@gmail.com'; // Correo manual
+        const testEmail = 'malopezvelasquez@uamv.edu.ni';
         const testUsername = 'Usuario de Prueba';
-        const verificationCode = '123456'; // Código de prueba
-
+        const verificationCode = '123456';
         try {
             await this.emailService.sendEmailVerification(
                 testUsername,

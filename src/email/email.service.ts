@@ -48,8 +48,6 @@ export class EmailService {
         username: string,
         codeDigits: string[]
     ): string {
-        // codeDigits debe ser un array de 6 elementos que contengan cada dígito, e.g. ['1','2','3','4','5','6']
-        // Alternativamente, podrías dividir un string de 6 caracteres en un array.
         return `
   <!DOCTYPE html>
   <html lang="es">

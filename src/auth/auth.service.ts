@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsuarioService } from '../usuario/usuario.service';
 import * as bcrypt from 'bcrypt';
@@ -12,11 +12,26 @@ export class AuthService {
 
     async validateUser(email: string, password: string): Promise<any> {
         const usuario = await this.usuarioService.findByEmail(email);
-        if (usuario && (await bcrypt.compare(password, usuario.password))) {
-            const { ...result } = usuario;
-            return result;
+
+        if (!usuario) {
+            throw new UnauthorizedException('Usuario no encontrado.');
         }
-        return null;
+
+        if (!usuario.isEmailConfirmed) {
+            throw new UnauthorizedException(
+                'Correo electrónico no confirmado. Por favor, verifica tu correo.'
+            );
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+            password,
+            usuario.password
+        );
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Contraseña incorrecta.');
+        }
+
+        return usuario;
     }
 
     async generateToken(
