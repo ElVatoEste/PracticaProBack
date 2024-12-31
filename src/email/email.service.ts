@@ -4,51 +4,53 @@ import sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class EmailService {
-  constructor(private readonly configService: ConfigService) {
-    const sendgridApiKey = this.configService.get<string>('SENDGRID_APIKEY');
-    if (!sendgridApiKey) {
-      throw new Error('SendGrid API Key no configurada.');
+    constructor(private readonly configService: ConfigService) {
+        const sendgridApiKey =
+            this.configService.get<string>('SENDGRID_APIKEY');
+        if (!sendgridApiKey) {
+            throw new Error('SendGrid API Key no configurada.');
+        }
+        sgMail.setApiKey(sendgridApiKey);
     }
-    sgMail.setApiKey(sendgridApiKey);
-  }
 
-  async sendEmailVerification(
-    username: string,
-    to: string,
-    code: string
-  ): Promise<void> {
-    const from =
-      this.configService.get<string>('SENDGRID_FROM') || 'noreply@example.com';
+    async sendEmailVerification(
+        username: string,
+        to: string,
+        code: string
+    ): Promise<void> {
+        const from =
+            this.configService.get<string>('SENDGRID_FROM') ||
+            'noreply@example.com';
 
-    const codeDigits = code.split('');
-    const htmlTemplate = this.getEmailVerificationTemplate(
-      username,
-      codeDigits
-    );
+        const codeDigits = code.split('');
+        const htmlTemplate = this.getEmailVerificationTemplate(
+            username,
+            codeDigits
+        );
 
-    const msg = {
-      to,
-      from,
-      subject: 'Verificación de Correo Electrónico',
-      html: htmlTemplate,
-    };
+        const msg = {
+            to,
+            from,
+            subject: 'Verificación de Correo Electrónico',
+            html: htmlTemplate,
+        };
 
-    try {
-      await sgMail.send(msg);
-      console.log(`Correo de verificación enviado a ${to}`);
-    } catch (error) {
-      console.error('Error al enviar el correo:', error);
-      throw new Error('No se pudo enviar el correo de verificación.');
+        try {
+            await sgMail.send(msg);
+            console.log(`Correo de verificación enviado a ${to}`);
+        } catch (error) {
+            console.error('Error al enviar el correo:', error);
+            throw new Error('No se pudo enviar el correo de verificación.');
+        }
     }
-  }
 
-  private getEmailVerificationTemplate(
-    username: string,
-    codeDigits: string[]
-  ): string {
-    // codeDigits debe ser un array de 6 elementos que contengan cada dígito, e.g. ['1','2','3','4','5','6']
-    // Alternativamente, podrías dividir un string de 6 caracteres en un array.
-    return `
+    private getEmailVerificationTemplate(
+        username: string,
+        codeDigits: string[]
+    ): string {
+        // codeDigits debe ser un array de 6 elementos que contengan cada dígito, e.g. ['1','2','3','4','5','6']
+        // Alternativamente, podrías dividir un string de 6 caracteres en un array.
+        return `
   <!DOCTYPE html>
   <html lang="es">
   <head>
@@ -182,12 +184,12 @@ export class EmailService {
             <p>Utiliza el siguiente código de verificación para confirmar tu correo:</p>
             <div class="code-container">
               ${codeDigits
-                .map(
-                  (digit) => `
+                  .map(
+                      (digit) => `
                   <div class="digit-box" title="Toca para copiar">${digit}</div>
                 `
-                )
-                .join('')}
+                  )
+                  .join('')}
             </div>
             <p style="margin-top: 20px;">
               Si no solicitaste esta verificación, ignora este correo.
@@ -207,5 +209,5 @@ export class EmailService {
   </body>
   </html>
   `;
-  }
+    }
 }

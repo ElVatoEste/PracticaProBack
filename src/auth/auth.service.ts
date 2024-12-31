@@ -5,30 +5,30 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly usuarioService: UsuarioService,
-    private readonly jwtService: JwtService
-  ) {}
+    constructor(
+        private readonly usuarioService: UsuarioService,
+        private readonly jwtService: JwtService
+    ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
-    const usuario = await this.usuarioService.findByEmail(email);
-    if (usuario && (await bcrypt.compare(password, usuario.password))) {
-      const { ...result } = usuario;
-      return result;
+    async validateUser(email: string, password: string): Promise<any> {
+        const usuario = await this.usuarioService.findByEmail(email);
+        if (usuario && (await bcrypt.compare(password, usuario.password))) {
+            const { ...result } = usuario;
+            return result;
+        }
+        return null;
     }
-    return null;
-  }
 
-  async generateToken(
-    usuario: any
-  ): Promise<{ accessToken: string; expiresIn: number }> {
-    const payload = {
-      sub: usuario.id,
-      username: usuario.nombre,
-      email: usuario.email,
-    };
-    const expiresIn = 3600;
-    const accessToken = this.jwtService.sign(payload, { expiresIn });
-    return { accessToken, expiresIn };
-  }
+    async generateToken(
+        usuario: any
+    ): Promise<{ accessToken: string; expiresIn: number }> {
+        const payload = {
+            sub: usuario.id,
+            username: usuario.nombre,
+            email: usuario.email,
+        };
+        const expiresIn = 3600;
+        const accessToken = this.jwtService.sign(payload, { expiresIn });
+        return { accessToken, expiresIn };
+    }
 }

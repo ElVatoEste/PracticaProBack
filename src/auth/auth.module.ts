@@ -7,15 +7,15 @@ import { UsuarioModule } from '../usuario/usuario.module';
 import { JwtStrategy } from './strategie/jwt.strategy';
 
 @Module({
-  imports: [
-    UsuarioModule,
-    PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'defaultSecret',
-      signOptions: { expiresIn: '1h' },
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy], // Agrega JwtStrategy aquí
+    imports: [
+        UsuarioModule,
+        PassportModule,
+        JwtModule.register({
+            secret: process.env.JWT_SECRET || 'defaultSecret',
+            signOptions: { expiresIn: '1h' },
+        }),
+    ],
+    controllers: [AuthController],
+    providers: [AuthService, JwtStrategy], // Agrega JwtStrategy aquí
 })
 export class AuthModule {}
