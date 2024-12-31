@@ -3,9 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import express from 'express';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import { config } from 'dotenv';
-
-config();
+import { ConfigService } from '@nestjs/config';
 
 let app: express.Express;
 
@@ -29,8 +27,11 @@ async function createServer() {
       })
     );
 
-    await nestApp.init();
+    // Asignar a la variable `app` para evitar inicialización redundante
     app = expressApp;
+
+    // Inicializar la aplicación NestJS
+    await nestApp.init();
   }
   return app;
 }
@@ -60,11 +61,21 @@ export default async function handler(req: any, res: any) {
 }
 
 // Solo para desarrollo local
-if (process.env.IS_OFFLINE === 'true') {
-  createServer().then((expressApp) => {
-    const port = process.env.PORT || 3000;
-    expressApp.listen(port, () => {
-      console.log(`🚀 Servidor corriendo en local: http://localhost:${port}`);
+async function runLocal() {
+  const nestApp = await NestFactory.create(AppModule);
+  const configService = nestApp.get(ConfigService);
+
+  const isOffline = configService.get<boolean>('IS_OFFLINE', false);
+  const port = configService.get<number>('PORT', 3000);
+
+  if (isOffline) {
+    createServer().then((expressApp) => {
+      expressApp.listen(port, () => {
+        console.log(`🚀 Servidor corriendo en local: http://localhost:${port}`);
+      });
     });
-  });
+  }
 }
+
+// Ejecutar solo en modo desarrollo local
+runLocal();
