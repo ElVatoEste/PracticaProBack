@@ -5,28 +5,17 @@ import sgMail from '@sendgrid/mail';
 @Injectable()
 export class EmailService {
     constructor(private readonly configService: ConfigService) {
-        const sendgridApiKey =
-            this.configService.get<string>('SENDGRID_APIKEY');
+        const sendgridApiKey = this.configService.get<string>('SENDGRID_APIKEY');
         if (!sendgridApiKey) {
             throw new Error('SendGrid API Key no configurada.');
         }
         sgMail.setApiKey(sendgridApiKey);
     }
 
-    async sendEmailVerification(
-        username: string,
-        to: string,
-        code: string
-    ): Promise<void> {
-        const from =
-            this.configService.get<string>('SENDGRID_FROM') ||
-            'noreply@example.com';
-
+    async sendEmailVerification(username: string, to: string, code: string): Promise<void> {
+        const from = this.configService.get<string>('SENDGRID_FROM') || 'noreply@example.com';
         const codeDigits = code.split('');
-        const htmlTemplate = this.getEmailVerificationTemplate(
-            username,
-            codeDigits
-        );
+        const htmlTemplate = this.getEmailVerificationTemplate(username, codeDigits);
 
         const msg = {
             to,
@@ -44,10 +33,7 @@ export class EmailService {
         }
     }
 
-    private getEmailVerificationTemplate(
-        username: string,
-        codeDigits: string[]
-    ): string {
+    private getEmailVerificationTemplate(username: string, codeDigits: string[]): string {
         return `
   <!DOCTYPE html>
   <html lang="es">

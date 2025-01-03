@@ -1,9 +1,4 @@
-import {
-    Injectable,
-    ConflictException,
-    NotFoundException,
-    BadRequestException,
-} from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,11 +15,7 @@ export class UsuarioService {
         private readonly authCodeRepository: Repository<AuthCode>
     ) {}
 
-    async createUser(data: {
-        nombre: string;
-        email: string;
-        password: string;
-    }): Promise<Usuario> {
+    async createUser(data: { nombre: string; email: string; password: string }): Promise<Usuario> {
         const existingUser = await this.findByEmail(data.email);
         if (existingUser) {
             throw new ConflictException('El correo ya está registrado');
@@ -69,7 +60,11 @@ export class UsuarioService {
         });
 
         if (!authCode || authCode.expiresAt < new Date()) {
-            throw new BadRequestException('Código inválido o expirado');
+            throw new BadRequestException({
+                code: 400,
+                message: 'Código inválido o expirado',
+                success: false,
+            });
         }
 
         authCode.isUsed = true;
@@ -93,18 +88,14 @@ export class UsuarioService {
         const authCode = this.authCodeRepository.create({
             usuario: user,
             code,
-            expiresAt: this.getExpirationDate(15), // Expira en 15 minutos
+            expiresAt: this.getExpirationDate(15),
         });
 
         await this.authCodeRepository.save(authCode);
         return code; // Envía este código al correo
     }
 
-    async resetPassword(
-        email: string,
-        code: string,
-        newPassword: string
-    ): Promise<void> {
+    async resetPassword(email: string, code: string, newPassword: string): Promise<void> {
         const authCode = await this.authCodeRepository.findOne({
             where: { usuario: { email }, code, isUsed: false },
         });

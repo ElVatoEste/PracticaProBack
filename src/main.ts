@@ -4,21 +4,20 @@ import { AppModule } from './app.module';
 import express from 'express';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger/dist';
+import { ValidationExceptionFilter } from './filters/validation-exception/validation-exception.filter';
 
 let app: express.Express;
 
 async function createServer() {
     if (!app) {
         const expressApp = express();
-        const nestApp = await NestFactory.create(
-            AppModule,
-            new ExpressAdapter(expressApp),
-            {
-                logger: ['error', 'warn', 'log'],
-                cors: true,
-            }
-        );
+        const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(expressApp), {
+            logger: ['error', 'warn', 'log'],
+            cors: true,
+        });
 
+        // Habilitar validación global
         nestApp.useGlobalPipes(
             new ValidationPipe({
                 whitelist: true,
@@ -26,6 +25,15 @@ async function createServer() {
                 transform: true,
             })
         );
+
+        // Usar filtro global
+        nestApp.useGlobalFilters(new ValidationExceptionFilter());
+
+        // Configuración de Swagger
+        const config = new DocumentBuilder().setTitle('API PracticaPro').setDescription('Documentación de la API de PracticaPro').setVersion('1.0').addBearerAuth().build();
+
+        const document = SwaggerModule.createDocument(nestApp, config);
+        SwaggerModule.setup('api', nestApp, document);
 
         // Asignar a la variable `app` para evitar inicialización redundante
         app = expressApp;
@@ -71,9 +79,8 @@ async function runLocal() {
     if (isOffline) {
         createServer().then((expressApp) => {
             expressApp.listen(port, () => {
-                console.log(
-                    `🚀 Servidor corriendo en local: http://localhost:${port}`
-                );
+                console.log(`🚀 Servidor corriendo en local: http://localhost:${port}`);
+                console.log(`📄 Documentación disponible en: http://localhost:${port}/api`);
             });
         });
     }

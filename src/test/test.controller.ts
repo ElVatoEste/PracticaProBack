@@ -16,11 +16,7 @@ export class TestController {
         const testUsername = 'Usuario de Prueba';
         const verificationCode = '123456';
         try {
-            await this.emailService.sendEmailVerification(
-                testUsername,
-                testEmail,
-                verificationCode
-            );
+            await this.emailService.sendEmailVerification(testUsername, testEmail, verificationCode);
             return { message: `Correo enviado exitosamente a ${testEmail}` };
         } catch (error) {
             console.error('Error al enviar el correo:', error);
