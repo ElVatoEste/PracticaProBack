@@ -10,7 +10,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
 
         let message: string;
         if (Array.isArray(exceptionResponse.message)) {
-            message = exceptionResponse.message.join(', ');
+            message = exceptionResponse.message[0]; // Mostrar solo la posición 0
         } else {
             message = exceptionResponse.message;
         }

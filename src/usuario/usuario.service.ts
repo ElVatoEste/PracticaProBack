@@ -18,7 +18,9 @@ export class UsuarioService {
     async createUser(data: { nombre: string; email: string; password: string }): Promise<Usuario> {
         const existingUser = await this.findByEmail(data.email);
         if (existingUser) {
-            throw new ConflictException('El correo ya está registrado');
+            throw new ConflictException({
+                message: 'El correo ya está registrado',
+            });
         }
 
         const hashedPassword = await bcrypt.hash(data.password, 10);
