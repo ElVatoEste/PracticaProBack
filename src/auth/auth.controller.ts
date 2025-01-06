@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UnauthorizedException, NotFoundException, HttpException, BadRequestException } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { UsuarioService } from '../usuario/usuario.service';
@@ -44,20 +44,31 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'Inicio de sesión exitoso' })
     @ApiBody({ type: LoginDto })
     async login(@Body() loginDto: LoginDto) {
-        const usuario = await this.authService.validateUser(loginDto.email, loginDto.password);
-        if (!usuario) {
-            throw new UnauthorizedException('Correo o contraseña inválidos');
-        }
+        try {
+            const usuario = await this.authService.validateUser(loginDto.email, loginDto.password);
 
-        const tokenData = await this.authService.generateToken(usuario);
-        return {
-            message: 'Inicio de sesión exitoso',
-            user: {
-                nombre: usuario.nombre,
-                email: usuario.email,
-            },
-            ...tokenData,
-        };
+            const tokenData = await this.authService.generateToken(usuario);
+            return {
+                message: 'Inicio de sesión exitoso',
+                user: {
+                    nombre: usuario.nombre,
+                    email: usuario.email,
+                },
+                ...tokenData,
+            };
+        } catch (error) {
+            if (error instanceof UnauthorizedException && error.getResponse()['isConfirmed'] === false) {
+                throw new HttpException(
+                    {
+                        statusCode: 401,
+                        message: error.getResponse()['message'],
+                        isConfirmed: false,
+                    },
+                    HttpStatus.UNAUTHORIZED
+                );
+            }
+            throw error;
+        }
     }
 
     @Post('confirm-email')
@@ -90,6 +101,15 @@ export class AuthController {
             return { message: 'El correo electrónico ya está confirmado.' };
         }
 
+        const existingCode = await this.usuarioService.getExistingValidAuthCode(email);
+
+        if (existingCode) {
+            const timeRemaining = Math.ceil((existingCode.expiresAt.getTime() - new Date().getTime()) / 60000);
+            throw new BadRequestException({
+                message: `Por favor, espera ${timeRemaining} minutos antes de solicitar un nuevo código.`,
+                success: false,
+            });
+        }
         const newCode = await this.usuarioService.generateEmailVerificationCode(user.id);
 
         try {

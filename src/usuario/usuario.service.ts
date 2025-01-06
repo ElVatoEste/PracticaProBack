@@ -1,7 +1,7 @@
 import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Usuario } from '../entities/usuario.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthCode } from '../entities/auth-code.entity';
@@ -37,23 +37,44 @@ export class UsuarioService {
     }
 
     async generateEmailVerificationCode(userId: number): Promise<string> {
-        const user = await this.usuarioRepository.findOne({
-            where: { id: userId },
-        });
+        const user = await this.usuarioRepository.findOne({ where: { id: userId } });
+
         if (!user) {
             throw new NotFoundException('Usuario no encontrado');
         }
+        const existingCode = await this.authCodeRepository.findOne({
+            where: {
+                usuario: { id: userId },
+                isUsed: false,
+                expiresAt: MoreThan(new Date()),
+            },
+        });
 
+        if (existingCode) {
+            return existingCode.code;
+        }
         const code = this.generate6DigitCode();
 
         const authCode = this.authCodeRepository.create({
             usuario: user,
+            email: user.email,
             code,
-            expiresAt: this.getExpirationDate(10), // Expira en 10 minutos
+            expiresAt: this.getExpirationDate(10),
         });
 
         await this.authCodeRepository.save(authCode);
-        return code; // Envía este código al correo
+        return code;
+    }
+
+    async getExistingValidAuthCode(email: string): Promise<AuthCode | null> {
+        return this.authCodeRepository.findOne({
+            where: {
+                email,
+                isUsed: false,
+                expiresAt: MoreThan(new Date()),
+            },
+            order: { createdAt: 'DESC' },
+        });
     }
 
     async confirmEmail(email: string, code: string): Promise<void> {

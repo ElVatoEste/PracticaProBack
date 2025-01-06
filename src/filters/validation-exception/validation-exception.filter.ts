@@ -6,19 +6,20 @@ export class ValidationExceptionFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const status = exception.getStatus();
-        const exceptionResponse = exception.getResponse() as { message: any; error: string } | any;
+        const exceptionResponse = exception.getResponse();
 
-        let message: string;
-        if (Array.isArray(exceptionResponse.message)) {
-            message = exceptionResponse.message[0]; // Mostrar solo la posición 0
-        } else {
-            message = exceptionResponse.message;
+        // Asegurarse de que exceptionResponse sea un objeto antes de aplicar spread
+        const responseBody = {
+            statusCode: status,
+            message: undefined,
+            ...(typeof exceptionResponse === 'object' && exceptionResponse !== null ? exceptionResponse : { message: exceptionResponse }),
+        };
+
+        // Si el campo 'message' es un array, toma solo la primera posición
+        if (Array.isArray(responseBody.message)) {
+            responseBody.message = responseBody.message[0];
         }
 
-        response.status(status).json({
-            statusCode: status,
-            message,
-            error: exceptionResponse.error || 'Bad Request',
-        });
+        response.status(status).json(responseBody);
     }
 }

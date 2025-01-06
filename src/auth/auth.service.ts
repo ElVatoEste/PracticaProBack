@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsuarioService } from '../usuario/usuario.service';
 import * as bcrypt from 'bcrypt';
@@ -14,20 +14,36 @@ export class AuthService {
         const usuario = await this.usuarioService.findByEmail(email);
 
         if (!usuario) {
-            throw new UnauthorizedException('Usuario no encontrado.');
+            throw new HttpException(
+                {
+                    statusCode: HttpStatus.UNAUTHORIZED,
+                    message: 'Usuario no encontrado.',
+                    isConfirmed: null,
+                },
+                HttpStatus.UNAUTHORIZED
+            );
         }
 
         if (!usuario.isEmailConfirmed) {
-            throw new UnauthorizedException({
-                statusCode: 401,
-                message: 'Correo electrónico no confirmado. Por favor, verifica tu correo.',
-                isConfirmed: false,
-            });
+            throw new HttpException(
+                {
+                    statusCode: HttpStatus.UNAUTHORIZED,
+                    message: 'Correo electrónico no confirmado. Por favor, verifica tu correo.',
+                    isConfirmed: false,
+                },
+                HttpStatus.UNAUTHORIZED
+            );
         }
-
         const isPasswordValid = await bcrypt.compare(password, usuario.password);
         if (!isPasswordValid) {
-            throw new UnauthorizedException('Contraseña incorrecta.');
+            throw new HttpException(
+                {
+                    statusCode: HttpStatus.UNAUTHORIZED,
+                    message: 'Contraseña incorrecta.',
+                    isConfirmed: true,
+                },
+                HttpStatus.UNAUTHORIZED
+            );
         }
 
         return usuario;
