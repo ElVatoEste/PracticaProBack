@@ -11,7 +11,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         });
     }
 
+    /**
+     * Payload es el contenido del token JWT.
+     * Retornamos un objeto que estará disponible en req.user
+     */
     async validate(payload: any) {
-        return { userId: payload.sub, username: payload.username };
+        return {
+            userId: payload.sub, // sub = ID de usuario
+            username: payload.username,
+        };
     }
 }

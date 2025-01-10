@@ -35,6 +35,22 @@ export class UsuarioService {
     async findByEmail(email: string): Promise<Usuario | undefined> {
         return this.usuarioRepository.findOne({ where: { email } });
     }
+    async getBasicUserInfo(userId: number) {
+        const user = await this.usuarioRepository.findOne({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        // Retornar sólo los campos que desees exponer
+        return {
+            id: user.id,
+            nombre: user.nombre,
+            email: user.email,
+        };
+    }
 
     async generateEmailVerificationCode(userId: number): Promise<string> {
         const user = await this.usuarioRepository.findOne({ where: { id: userId } });
