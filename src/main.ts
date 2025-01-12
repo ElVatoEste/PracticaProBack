@@ -6,6 +6,7 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger/dist';
 import { ValidationExceptionFilter } from './filters/validation-exception/validation-exception.filter';
+import { AuthGuard } from '@nestjs/passport';
 
 let app: express.Express;
 
@@ -16,7 +17,8 @@ async function createServer() {
             logger: ['error', 'warn', 'log'],
             cors: true,
         });
-
+        // 🔐 Habilitar el guard JWT globalmente
+        nestApp.useGlobalGuards(new (AuthGuard('jwt'))());
         // Habilitar validación global
         nestApp.useGlobalPipes(
             new ValidationPipe({

@@ -55,8 +55,11 @@ export class AuthService {
             username: usuario.nombre,
             email: usuario.email,
         };
-        const expiresIn = 3600;
+
+        // 🔧 Configura la expiración a 7 días
+        const expiresIn = 7 * 24 * 60 * 60;
         const accessToken = this.jwtService.sign(payload, { expiresIn });
+
         return { accessToken, expiresIn };
     }
 }

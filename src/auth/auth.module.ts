@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { JwtStrategy } from './strategie/jwt.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailModule } from '../email/email.module';
 
 @Module({
@@ -12,9 +13,14 @@ import { EmailModule } from '../email/email.module';
         UsuarioModule,
         PassportModule,
         EmailModule,
-        JwtModule.register({
-            secret: process.env.JWT_SECRET || 'defaultSecret',
-            signOptions: { expiresIn: '1h' },
+        ConfigModule,
+        JwtModule.registerAsync({
+            imports: [ConfigModule],
+            useFactory: (configService: ConfigService) => ({
+                secret: configService.get<string>('JWT_SECRET') || 'defaultSecret',
+                signOptions: { expiresIn: '7d' },
+            }),
+            inject: [ConfigService],
         }),
     ],
     controllers: [AuthController],
