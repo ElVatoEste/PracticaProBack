@@ -1,10 +1,11 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException, UseGuards } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
 import { Usuario } from '../entities/usuario.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthCode } from '../entities/auth-code.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class UsuarioService {
@@ -37,7 +38,7 @@ export class UsuarioService {
     }
     async getBasicUserInfo(userId: number) {
         const user = await this.usuarioRepository.findOne({
-            where: { id: userId },
+            where: { idUsuario: userId },
         });
 
         if (!user) {
@@ -46,21 +47,21 @@ export class UsuarioService {
 
         // Retornar sólo los campos que desees exponer
         return {
-            id: user.id,
+            id: user.idUsuario,
             nombre: user.nombre,
             email: user.email,
         };
     }
 
     async generateEmailVerificationCode(userId: number): Promise<string> {
-        const user = await this.usuarioRepository.findOne({ where: { id: userId } });
+        const user = await this.usuarioRepository.findOne({ where: { idUsuario: userId } });
 
         if (!user) {
             throw new NotFoundException('Usuario no encontrado');
         }
         const existingCode = await this.authCodeRepository.findOne({
             where: {
-                usuario: { id: userId },
+                usuario: { idUsuario: userId },
                 isUsed: false,
                 expiresAt: MoreThan(new Date()),
             },

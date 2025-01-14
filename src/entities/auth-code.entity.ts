@@ -1,10 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Usuario } from './usuario.entity';
 
-@Entity()
+@Entity('auth_code')
 export class AuthCode {
     @PrimaryGeneratedColumn()
-    id: number;
+    idCodigo: number;
 
     @ManyToOne(() => Usuario, (usuario) => usuario.authCodes, {
         onDelete: 'CASCADE',

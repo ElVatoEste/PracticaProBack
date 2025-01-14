@@ -1,15 +1,16 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { AuthCode } from './auth-code.entity';
+import { NotasUsuario } from './notas-usuario.entity';
 
-@Entity()
+@Entity('usuarios')
 export class Usuario {
     @PrimaryGeneratedColumn()
-    id: number;
+    idUsuario: number;
 
-    @Column()
+    @Column({ length: 100 })
     nombre: string;
 
-    @Column({ unique: true })
+    @Column({ unique: true, length: 100 })
     email: string;
 
     @Column()
@@ -20,4 +21,7 @@ export class Usuario {
 
     @OneToMany(() => AuthCode, (authCode) => authCode.usuario)
     authCodes: AuthCode[];
+
+    @OneToMany(() => NotasUsuario, (notasUsuario) => notasUsuario.usuario)
+    notas: NotasUsuario[];
 }

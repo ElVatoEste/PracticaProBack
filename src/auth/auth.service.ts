@@ -51,7 +51,7 @@ export class AuthService {
 
     async generateToken(usuario: any): Promise<{ accessToken: string; expiresIn: number }> {
         const payload = {
-            sub: usuario.id,
+            sub: usuario.idUsuario,
             username: usuario.nombre,
             email: usuario.email,
         };
