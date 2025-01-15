@@ -2,7 +2,7 @@ import { Injectable, ConflictException, NotFoundException, BadRequestException, 
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
-import { Usuario } from '../entities/usuario.entity';
+import { Usuarios } from '../entities/usuarios.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthCode } from '../entities/auth-code.entity';
 import { AuthGuard } from '@nestjs/passport';
@@ -10,13 +10,13 @@ import { AuthGuard } from '@nestjs/passport';
 @Injectable()
 export class UsuarioService {
     constructor(
-        @InjectRepository(Usuario)
-        private readonly usuarioRepository: Repository<Usuario>,
+        @InjectRepository(Usuarios)
+        private readonly usuarioRepository: Repository<Usuarios>,
         @InjectRepository(AuthCode)
         private readonly authCodeRepository: Repository<AuthCode>
     ) {}
 
-    async createUser(data: { nombre: string; email: string; password: string }): Promise<Usuario> {
+    async createUser(data: { nombre: string; email: string; password: string }): Promise<Usuarios> {
         const existingUser = await this.findByEmail(data.email);
         if (existingUser) {
             throw new ConflictException({
@@ -33,7 +33,7 @@ export class UsuarioService {
         return this.usuarioRepository.save(newUser);
     }
 
-    async findByEmail(email: string): Promise<Usuario | undefined> {
+    async findByEmail(email: string): Promise<Usuarios | undefined> {
         return this.usuarioRepository.findOne({ where: { email } });
     }
     async getBasicUserInfo(userId: number) {

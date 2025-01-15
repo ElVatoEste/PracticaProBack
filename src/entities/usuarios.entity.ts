@@ -3,7 +3,7 @@ import { AuthCode } from './auth-code.entity';
 import { NotasUsuario } from './notas-usuario.entity';
 
 @Entity('usuarios')
-export class Usuario {
+export class Usuarios {
     @PrimaryGeneratedColumn()
     idUsuario: number;
 

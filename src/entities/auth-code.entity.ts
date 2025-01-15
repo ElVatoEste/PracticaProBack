@@ -1,15 +1,15 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-import { Usuario } from './usuario.entity';
+import { Usuarios } from './usuarios.entity';
 
 @Entity('auth_code')
 export class AuthCode {
     @PrimaryGeneratedColumn()
     idCodigo: number;
 
-    @ManyToOne(() => Usuario, (usuario) => usuario.authCodes, {
+    @ManyToOne(() => Usuarios, (usuarios) => usuarios.authCodes, {
         onDelete: 'CASCADE',
     })
-    usuario: Usuario;
+    usuario: Usuarios;
 
     @Column({ nullable: true })
     email: string;

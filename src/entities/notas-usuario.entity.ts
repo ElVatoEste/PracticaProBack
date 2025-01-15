@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Usuario } from './usuario.entity';
+import { Usuarios } from './usuarios.entity';
 import { Materia } from './materia.entity';
 
 @Entity('notas_usuarios')
@@ -7,10 +7,10 @@ export class NotasUsuario {
     @PrimaryGeneratedColumn()
     idNotas: number;
 
-    @ManyToOne(() => Usuario, (usuario) => usuario.notas, {
+    @ManyToOne(() => Usuarios, (usuarios) => usuarios.notas, {
         onDelete: 'CASCADE',
     })
-    usuario: Usuario;
+    usuario: Usuarios;
 
     @ManyToOne(() => Materia, (materia) => materia.notas, {
         onDelete: 'CASCADE',
