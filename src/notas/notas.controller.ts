@@ -26,4 +26,15 @@ export class NotasController {
 
         return this.notasService.addNote(userId, idMateria, puntaje);
     }
+
+    @Post('offline')
+    async addOfflineNote(@Body() body: { idUsuario: number; idMateria: number; puntaje: number }) {
+        const { idMateria, puntaje, idUsuario } = body;
+
+        if (!idMateria || puntaje == null) {
+            throw new BadRequestException('idMateria y puntaje son obligatorios');
+        }
+
+        return this.notasService.addNote(idUsuario, idMateria, puntaje);
+    }
 }
