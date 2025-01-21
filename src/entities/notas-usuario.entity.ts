@@ -5,7 +5,7 @@ import { Materia } from './materia.entity';
 @Entity('notas_usuarios')
 export class NotasUsuario {
     @PrimaryGeneratedColumn()
-    idNotas: number;
+    id: number;
 
     @ManyToOne(() => Usuarios, (usuarios) => usuarios.notas, {
         onDelete: 'CASCADE',

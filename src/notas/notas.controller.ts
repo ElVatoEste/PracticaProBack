@@ -1,9 +1,11 @@
 import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { NotasService } from './notas.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('notas')
+@ApiBearerAuth()
 export class NotasController {
     constructor(private readonly notasService: NotasService) {}
 

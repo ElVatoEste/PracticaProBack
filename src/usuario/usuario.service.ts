@@ -5,7 +5,6 @@ import { MoreThan, Repository } from 'typeorm';
 import { Usuarios } from '../entities/usuarios.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthCode } from '../entities/auth-code.entity';
-import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class UsuarioService {
@@ -23,7 +22,6 @@ export class UsuarioService {
                 message: 'El correo ya está registrado',
             });
         }
-
         const hashedPassword = await bcrypt.hash(data.password, 10);
         const newUser = this.usuarioRepository.create({
             nombre: data.nombre,
@@ -33,35 +31,33 @@ export class UsuarioService {
         return this.usuarioRepository.save(newUser);
     }
 
-    async findByEmail(email: string): Promise<Usuarios | undefined> {
+    async findByEmail(email: string): Promise<Usuarios> {
         return this.usuarioRepository.findOne({ where: { email } });
     }
+
     async getBasicUserInfo(userId: number) {
         const user = await this.usuarioRepository.findOne({
-            where: { idUsuario: userId },
+            where: { id: userId },
         });
-
         if (!user) {
             throw new NotFoundException('Usuario no encontrado');
         }
-
-        // Retornar sólo los campos que desees exponer
         return {
-            id: user.idUsuario,
+            id: user.id,
             nombre: user.nombre,
             email: user.email,
         };
     }
 
     async generateEmailVerificationCode(userId: number): Promise<string> {
-        const user = await this.usuarioRepository.findOne({ where: { idUsuario: userId } });
+        const user = await this.usuarioRepository.findOne({ where: { id: userId } });
 
         if (!user) {
             throw new NotFoundException('Usuario no encontrado');
         }
         const existingCode = await this.authCodeRepository.findOne({
             where: {
-                usuario: { idUsuario: userId },
+                usuario: { id: userId },
                 isUsed: false,
                 expiresAt: MoreThan(new Date()),
             },

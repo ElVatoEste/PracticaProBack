@@ -7,14 +7,14 @@ export class InitializerService {
 
     async run() {
         await this.dataSource.query(`
-            INSERT INTO materia ("idMateria", nombre)
+            INSERT INTO materia (id, nombre)
             VALUES
                 (1, 'TECNICAS'),
                 (2, 'PROCEDIMIENTOS'),
                 (3, 'ADMINISTRACION'),
                 (4, 'URGENCIAS'),
                 (5, 'PROCEDIMIENTOS2')
-            ON CONFLICT ("idMateria") DO NOTHING;
+            ON CONFLICT (id) DO NOTHING;
         `);
         console.log('✅ Configuración inicial completada');
     }

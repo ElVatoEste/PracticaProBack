@@ -4,7 +4,7 @@ import { Usuarios } from './usuarios.entity';
 @Entity('auth_code')
 export class AuthCode {
     @PrimaryGeneratedColumn()
-    idCodigo: number;
+    id: number;
 
     @ManyToOne(() => Usuarios, (usuarios) => usuarios.authCodes, {
         onDelete: 'CASCADE',

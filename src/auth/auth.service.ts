@@ -34,6 +34,7 @@ export class AuthService {
                 HttpStatus.UNAUTHORIZED
             );
         }
+
         const isPasswordValid = await bcrypt.compare(password, usuario.password);
         if (!isPasswordValid) {
             throw new HttpException(
@@ -51,7 +52,7 @@ export class AuthService {
 
     async generateToken(usuario: any): Promise<{ accessToken: string; expiresIn: number }> {
         const payload = {
-            sub: usuario.idUsuario,
+            sub: usuario.id,
             username: usuario.nombre,
             email: usuario.email,
         };
@@ -59,7 +60,6 @@ export class AuthService {
         // 🔧 Configura la expiración a 7 días
         const expiresIn = 7 * 24 * 60 * 60;
         const accessToken = this.jwtService.sign(payload, { expiresIn });
-
         return { accessToken, expiresIn };
     }
 }

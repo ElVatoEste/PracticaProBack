@@ -26,7 +26,7 @@ export class AuthController {
     async register(@Body() registerDto: RegisterDto): Promise<{ message: string }> {
         const usuario = await this.usuarioService.createUser(registerDto);
 
-        const verificationCode = await this.usuarioService.generateEmailVerificationCode(usuario.idUsuario);
+        const verificationCode = await this.usuarioService.generateEmailVerificationCode(usuario.id);
 
         try {
             await this.emailService.sendEmailVerification(usuario.nombre, usuario.email, verificationCode);
@@ -110,7 +110,7 @@ export class AuthController {
                 success: false,
             });
         }
-        const newCode = await this.usuarioService.generateEmailVerificationCode(user.idUsuario);
+        const newCode = await this.usuarioService.generateEmailVerificationCode(user.id);
 
         try {
             await this.emailService.sendEmailVerification(user.nombre, user.email, newCode);

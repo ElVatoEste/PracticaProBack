@@ -16,7 +16,7 @@ export class NotasService {
         await queryRunner.connect();
 
         try {
-            return await queryRunner.query(`SELECT * FROM get_user_notes($1)`, [userId]);
+            return await queryRunner.query(`SELECT * FROM get_notas_by_usuario($1)`, [userId]);
         } finally {
             await queryRunner.release();
         }
@@ -25,7 +25,7 @@ export class NotasService {
     // Agregar una nueva nota
     async addNote(userId: number, idMateria: number, puntaje: number) {
         const notasExistentes = await this.notasRepository.find({
-            where: { usuario: { idUsuario: userId }, materia: { idMateria: idMateria } },
+            where: { usuario: { id: userId }, materia: { id: idMateria } },
             order: { intento: 'ASC' },
         });
 
@@ -36,8 +36,8 @@ export class NotasService {
         const nuevoIntento = notasExistentes.length + 1;
 
         const nuevaNota = this.notasRepository.create({
-            usuario: { idUsuario: userId },
-            materia: { idMateria: idMateria },
+            usuario: { id: userId },
+            materia: { id: idMateria },
             puntaje,
             intento: nuevoIntento,
         });

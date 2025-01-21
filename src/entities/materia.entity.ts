@@ -4,7 +4,7 @@ import { NotasUsuario } from './notas-usuario.entity';
 @Entity('materia')
 export class Materia {
     @PrimaryGeneratedColumn()
-    idMateria: number;
+    id: number;
 
     @Column({ length: 100 })
     nombre: string;
