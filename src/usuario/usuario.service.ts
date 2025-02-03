@@ -1,5 +1,4 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException, UseGuards } from '@nestjs/common';
-
+import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
 import { Usuarios } from '../entities/usuarios.entity';
