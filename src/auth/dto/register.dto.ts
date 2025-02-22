@@ -10,9 +10,9 @@ export class RegisterDto {
     @ApiProperty({ description: 'Correo electrónico del usuario', example: 'usuario@uamv.com' })
     @IsNotEmpty({ message: 'Debe ingresar un correo electrónico' })
     @IsEmail({}, { message: 'Debe ingresar un correo electrónico válido' })
-    @Matches(/^[a-zA-Z0-9._%+-]+@uamv/, {
-        message: 'El correo electrónico debe ser del dominio @uamv',
-    })
+    // @Matches(/^[a-zA-Z0-9._%+-]+@uamv/, {
+    //     message: 'El correo electrónico debe ser del dominio @uamv',
+    // })
     email: string;
 
     @ApiProperty({
