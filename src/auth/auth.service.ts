@@ -1,13 +1,15 @@
-import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
+import { HttpException, Injectable, HttpStatus, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsuarioService } from '../usuario/usuario.service';
+import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usuarioService: UsuarioService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly emailService: EmailService
     ) {}
 
     async validateUser(email: string, password: string): Promise<any> {
@@ -61,5 +63,29 @@ export class AuthService {
         const expiresIn = 7 * 24 * 60 * 60;
         const accessToken = this.jwtService.sign(payload, { expiresIn });
         return { accessToken, expiresIn };
+    }
+
+    async resetPassword(email: string): Promise<{ message: string }> {
+        // Buscar usuario por correo
+        const usuario = await this.usuarioService.findByEmail(email);
+        if (!usuario) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        const newPassword = this.generateRandomPassword(8);
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        await this.usuarioService.updatePassword(usuario.id, hashedPassword);
+        await this.emailService.sendResetPasswordEmail(usuario.nombre, usuario.email, newPassword);
+        return { message: 'Se ha enviado la nueva contraseña a su correo.' };
+    }
+
+    private generateRandomPassword(length: number = 8): string {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let password = '';
+        for (let i = 0; i < length; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
     }
 }

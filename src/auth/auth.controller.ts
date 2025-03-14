@@ -7,6 +7,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ConfirmDto } from './dto/confirm.dto';
 import { ResendDto } from './dto/resend.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('auth')
@@ -128,5 +129,14 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'Sesión cerrada exitosamente' })
     async logout() {
         return { message: 'Logout successful' };
+    }
+
+    @Post('reset-password')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Resetear contraseña: genera una nueva contraseña, la envía por correo y actualiza la base de datos' })
+    @ApiResponse({ status: 200, description: 'La nueva contraseña fue enviada al correo del usuario.' })
+    @ApiBody({ type: ResetPasswordDto })
+    async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<{ message: string }> {
+        return await this.authService.resetPassword(resetPasswordDto.email);
     }
 }

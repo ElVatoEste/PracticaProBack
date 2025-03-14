@@ -112,24 +112,6 @@ export class UsuarioService {
         await this.usuarioRepository.save(user);
     }
 
-    async generatePasswordResetCode(email: string): Promise<string> {
-        const user = await this.usuarioRepository.findOne({ where: { email } });
-        if (!user) {
-            throw new NotFoundException('Usuario no encontrado');
-        }
-
-        const code = this.generate6DigitCode();
-
-        const authCode = this.authCodeRepository.create({
-            usuario: user,
-            code,
-            expiresAt: this.getExpirationDate(15),
-        });
-
-        await this.authCodeRepository.save(authCode);
-        return code; // Envía este código al correo
-    }
-
     async resetPassword(email: string, code: string, newPassword: string): Promise<void> {
         const authCode = await this.authCodeRepository.findOne({
             where: { usuario: { email }, code, isUsed: false },
@@ -147,6 +129,15 @@ export class UsuarioService {
 
         authCode.isUsed = true;
         await this.authCodeRepository.save(authCode);
+    }
+
+    async updatePassword(userId: number, newHashedPassword: string): Promise<Usuarios> {
+        const user = await this.usuarioRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+        user.password = newHashedPassword;
+        return await this.usuarioRepository.save(user);
     }
 
     private generate6DigitCode(): string {
