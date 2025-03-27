@@ -15,7 +15,6 @@ export class NotasController {
         return await this.notasService.getNotasByUserId(userId);
     }
 
-    // 🌍 Endpoint PÚBLICO
     @Get('info')
     async getFullInfo() {
         return await this.notasService.getFullInfo();

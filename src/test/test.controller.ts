@@ -1,16 +1,21 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { EmailService } from '../email/email.service';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('test')
 export class TestController {
     constructor(private readonly emailService: EmailService) {}
 
     @Get()
+    @ApiBearerAuth()
     getTest(): { message: string } {
         return { message: 'El servidor está funcionando correctamente!' };
     }
 
     @Get('send-email')
+    @ApiBearerAuth()
     async sendTestEmail(): Promise<{ message: string }> {
         const testEmail = 'malopezvelasquez@uamv.edu.ni';
         const testUsername = 'Usuario de Prueba';

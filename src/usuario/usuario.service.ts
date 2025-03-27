@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
 import { Usuarios } from '../entities/usuarios.entity';
@@ -112,30 +112,31 @@ export class UsuarioService {
         await this.usuarioRepository.save(user);
     }
 
-    async resetPassword(email: string, code: string, newPassword: string): Promise<void> {
-        const authCode = await this.authCodeRepository.findOne({
-            where: { usuario: { email }, code, isUsed: false },
-        });
+    async resetPassword(userId: number, oldPassword: string, newPassword: string): Promise<boolean> {
+        const user = await this.usuarioRepository.findOne({ where: { id: userId } });
 
-        if (!authCode || authCode.expiresAt < new Date()) {
-            throw new BadRequestException('Código inválido o expirado');
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
         }
 
-        const user = await this.usuarioRepository.findOne({ where: { email } });
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            throw new NotFoundException('Contraseña incorrecta');
+        }
 
-        user.password = hashedPassword;
+        user.password = await bcrypt.hash(newPassword, 10);
         await this.usuarioRepository.save(user);
 
-        authCode.isUsed = true;
-        await this.authCodeRepository.save(authCode);
+        return true;
     }
 
     async updatePassword(userId: number, newHashedPassword: string): Promise<Usuarios> {
         const user = await this.usuarioRepository.findOne({ where: { id: userId } });
+
         if (!user) {
             throw new NotFoundException('Usuario no encontrado');
         }
+
         user.password = newHashedPassword;
         return await this.usuarioRepository.save(user);
     }

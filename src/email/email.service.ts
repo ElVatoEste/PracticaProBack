@@ -155,12 +155,12 @@ export class EmailService {
             <p>Utiliza el siguiente código de verificación para confirmar tu correo:</p>
             <div class="code-container">
               ${codeDigits
-            .map(
-                (digit) => `
+                  .map(
+                      (digit) => `
                   <div class="digit-box" title="Toca para copiar">${digit}</div>
                 `
-            )
-            .join('')}
+                  )
+                  .join('')}
             </div>
             <p style="margin-top: 20px;">
               Si no solicitaste esta verificación, ignora este correo.
